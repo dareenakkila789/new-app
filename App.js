@@ -33,11 +33,11 @@ const AuthStack = createStackNavigator({
 
   signUp: signUp,
 });
-const mainStack = createStackNavigator({
-  signUp: signUp,
-  Login: Login,
-  notification: notification,
-});
+// const mainStack = createStackNavigator({
+//   signUp: signUp,
+//   Login: Login,
+//   notification: notification,
+// });
 
 const Tabs = createBottomTabNavigator({
   Login: AuthStack,
