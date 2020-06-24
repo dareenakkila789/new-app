@@ -12,7 +12,9 @@ import {
   FlatList,
   Button,
   Picker,
+  TouchableWithoutFeedback,
 } from "react-native";
+import { SegmentedControls } from "react-native-radio-buttons";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import "firebase/auth";
@@ -22,8 +24,8 @@ export default class signUp extends React.Component {
     email: "",
     username: "",
     password: "",
-    student_checked: false,
-    teacher_checked: false,
+    options: ["student", "teacher"],
+    selectedOption: "",
   };
   handleChange = (e) => {
     let key = e.target.name;
@@ -31,53 +33,65 @@ export default class signUp extends React.Component {
       [key]: e.target.value,
     });
   };
-  addUser = (value) => {
-    console.log(value);
-    const { email, username, type, password } = this.state;
 
+  signUp = () => {
     const db = firebase.firestore();
-
-    console.log(email, password, "email,password");
-
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        let user = firebase.auth().currentUser;
-        db.collection("users")
-          .doc(user.uid)
-          .set({
-            Email: email,
-            Username: username,
-            type: value,
-          })
-          .then((docRef) => {
-            if (type === "student") {
-              this.props.navigation.navigate("/notification");
-            } else {
-              this.props.navigation.navigate("/notification");
-            }
-          })
-          .catch(function(error) {
-            console.error(error);
-          });
+    const { email, username, type, password, selectedOption } = this.state;
+    firebase.auth().createUserWithEmailAndPassword(email, password);
+    let user = firebase.auth().currentUser;
+    db.collection("users")
+      .doc(user.uid)
+      .set({
+        Email: email,
+        Username: username,
+        type: selectedOption,
       })
+
       .catch(function(error) {
         // Handle Errors here.
         var errorCode = error.code;
-
-        console.log(error);
-
+        var errorMessage = error.message;
         // ...
-      });
+      })
+      .then(console.log("mission completed"));
   };
   onChangeText = (key, val) => {
     this.setState({ [key]: val });
   };
-  moving = () => {
-    this.props.navigation.navigate("Score");
+
+  checktype = () => {
+    let { selectedOption } = this.state;
+    console.log(selectedOption);
+    if (selectedOption === "student") {
+      this.props.navigation.navigate("choose");
+    } else {
+      this.props.navigation.navigate("mainpage");
+    }
+    console.log("done checking!");
+  };
+  compiledFun = () => {
+    this.signUp();
+    this.checktype();
   };
   render() {
+    setSelectedOption = (selectedOption) => {
+      this.setState({
+        selectedOption,
+      });
+    };
+
+    function renderOption(option, selected, onSelect, index) {
+      const style = selected ? { fontWeight: "bold" } : {};
+
+      return (
+        <TouchableWithoutFeedback onPress={onSelect} key={index}>
+          <Text style={style}>{option}</Text>
+        </TouchableWithoutFeedback>
+      );
+    }
+    function renderContainer(optionNodes) {
+      return <View>{optionNodes}</View>;
+    }
     return (
       <View style={styles.container}>
         <TextInput
@@ -109,59 +123,48 @@ export default class signUp extends React.Component {
           onChangeText={(val) => this.onChangeText("password", val)}
         />
 
-        <RadioGroup getChecked={this.addUser}>
-          <Radio
-            defaultValue="op1"
-            value="teacher"
-            iconName={"lens"}
-            name="value"
-            label={"Teacher"}
-            value={"teacher"}
-            onChange={this.handleChange}
+        <View style={{ margin: 20 }}>
+          <SegmentedControls
+            options={this.state.options}
+            onSelection={setSelectedOption.bind(this)}
+            selectedOption={this.state.selectedOption}
           />
-          <Radio
-            onChange={this.handleChange}
-            defaultValue="op1"
-            value="student"
-            iconName={"lens"}
-            name="value"
-            label={"Student"}
-          />
-        </RadioGroup>
-        <Button
-          style={{
-            padding: 300,
-            margin: 100,
-            width: 70,
-            height: 50,
-            alignItems: "center",
-          }}
-          onPress={this.addUser}
-          title="SignUp"
-          color="#0000ff"
-        />
-        <Button
-          style={{
-            padding: 300,
-            margin: 100,
-            width: 70,
-            height: 50,
-            alignItems: "center",
-          }}
-          onPress={this.moving}
-          title="iibvu"
-          color="#0000ff"
-        />
+          <Text>
+            Selected type: {this.state.selectedOption || "choose your type"}
+          </Text>
+        </View>
+        <View style={styles.login}>
+          <View>
+            <TouchableOpacity style={styles.button} onPress={this.compiledFun}>
+              <Text>Sign up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  login: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    marginHorizontal: 30,
+    backgroundColor: "#E9446A",
+    borderRadius: 4,
+    height: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 200,
+  },
   input: {
     width: 345,
     height: 50,
-    backgroundColor: "red",
+    backgroundColor: "grey",
     margin: 5,
 
     padding: 8,

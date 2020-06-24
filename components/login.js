@@ -13,6 +13,7 @@ import {
   NavLink,
 } from "react-native";
 import signUp from "./signUp";
+import { AuthContext } from "../Auth";
 import * as firebase from "firebase";
 
 export default class login extends React.Component {
@@ -25,6 +26,7 @@ export default class login extends React.Component {
     type: "",
     username: "",
   };
+  static contextType = AuthContext;
 
   handleChange = (e) => {
     let key = e.target.name;
@@ -33,45 +35,51 @@ export default class login extends React.Component {
       [key]: e.target.value,
     });
   };
+
   signin = () => {
-    const { email, username, type, password } = this.state;
+    const { email, password } = this.state;
     const db = firebase.firestore();
-    console.log(email, password);
+    console.log(this.state.email);
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then((res) => {
-        let user = firebase.auth().currentUser;
         db.collection("users")
           .doc(res.user.uid)
           .get()
           .then((doc) => {
+            console.log("I am in");
             // const data = doc.data();
             console.log(doc.data().type);
             const UserType = doc.data().type;
 
             console.log("the user type is : ", UserType);
             // console.log(UserId.type);
-            // if (UserType === "student") {
-            //   this.props.history.push("/score");
-            // } else {
-            //   this.props.history.push("/notification");
-            // }
-            console.log("login sccussefully");
+            if (UserType === "student") {
+              this.props.navigation.navigate("choose");
+            } else {
+              this.props.navigation.navigate("mainpage");
+            }
           });
       })
-      .catch((error) => console.log(error));
+      .catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+      })
+      .then(console.log("mission completed!"));
   };
 
   moving = () => {
     this.props.navigation.navigate("signUp");
   };
-
   render() {
-    // const { currentUser } = this.context;
-    // if (currentUser) {
-    //   console.log(currentUser);
-    // }
+    var user = firebase.auth().currentUser;
+
+    if (user) {
+      console.log(user);
+    }
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Image

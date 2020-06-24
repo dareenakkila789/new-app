@@ -18,12 +18,14 @@ import "firebase/firestore";
 import "firebase/auth";
 
 export default class signUp extends React.Component {
+  static navigationOptions = {
+    title: "test",
+  };
   state = {
     email: "",
     username: "",
     password: "",
-    student_checked: false,
-    teacher_checked: false,
+    type: "",
   };
   handleChange = (e) => {
     let key = e.target.name;
@@ -31,56 +33,163 @@ export default class signUp extends React.Component {
       [key]: e.target.value,
     });
   };
-  addUser = (value) => {
+  // addUser = (value) => {
+  //   console.log(value);
+  //   const { email, username, type, password } = this.state;
+
+  //   const db = firebase.firestore();
+
+  //   console.log(email, password, "email,password");
+
+  //   firebase
+  //     .auth()
+  //     .createUserWithEmailAndPassword(email, password)
+  //     .then(() => {
+  //       let user = firebase.auth().currentUser;
+  //       db.collection("users")
+  //         .doc(user.uid)
+  //         .set({
+  //           Email: email,
+  //           Username: username,
+  //           type: value,
+  //         })
+  //         .then((docRef) => {
+  //           if (type === "student") {
+  //             this.props.navigation.navigate("/notification");
+  //           } else {
+  //             this.props.navigation.navigate("/notification");
+  //           }
+  //         })
+  //         .catch(function(error) {
+  //           console.error(error);
+  //         });
+  //     })
+  //     .catch(function(error) {
+  //       // Handle Errors here.
+  //       var errorCode = error.code;
+
+  //       console.log(error);
+
+  //       // ...
+  //     });
+  // };
+  // getChecked = (value) => {
+  //   let type = this.state;
+  //   console.log(vlaue);
+  //   this.setState({ type: value });
+  //   console.log(type);
+  // };
+  getChecked = (value) => {
+    // value = our checked value
     console.log(value);
-    const { email, username, type, password } = this.state;
-
-    const db = firebase.firestore();
-
-    console.log(email, password, "email,password");
-
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        let user = firebase.auth().currentUser;
-        db.collection("users")
-          .doc(user.uid)
-          .set({
-            Email: email,
-            Username: username,
-            type: value,
-          })
-          .then((docRef) => {
-            if (type === "student") {
-              this.props.navigation.navigate("/notification");
-            } else {
-              this.props.navigation.navigate("/notification");
-            }
-          })
-          .catch(function(error) {
-            console.error(error);
-          });
-      })
-      .catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-
-        console.log(error);
-
-        // ...
-      });
+    let type = this.state;
+    this.setState({ type: value });
+    console.log("dareen");
+    console.log("the type is:", type);
   };
+
+  // signUp = () => {
+  //   // console.log(value);
+  //   const db = firebase.firestore();
+  //   const { email, username, type, password } = this.state;
+  //   firebase.auth().createUserWithEmailAndPassword(email, password);
+  //   let user = firebase.auth().currentUser;
+  //   db.collection("users")
+  //     .doc(user.uid)
+  //     .set({
+  //       Email: email,
+  //       Username: username,
+  //       type: value,
+  //     })
+  //     .catch(function(error) {
+  //       // Handle Errors here.
+  //       var errorCode = error.code;
+  //       var errorMessage = error.message;
+  //       // ...
+  //     })
+  //     .then(alert("success"));
+  // };
   onChangeText = (key, val) => {
     this.setState({ [key]: val });
   };
   moving = () => {
-    this.props.navigation.navigate("/Login");
+    this.props.navigation.navigate("Score");
   };
   render() {
     return (
       <View style={styles.container}>
-        <Text>score page</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          autoCapitalize="none"
+          placeholderTextColor="white"
+          name="username"
+          Value="username"
+          onChangeText={(val) => this.onChangeText("username", val)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          autoCapitalize="none"
+          placeholderTextColor="white"
+          name="email"
+          Value="email"
+          onChangeText={(val) => this.onChangeText("email", val)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry={true}
+          autoCapitalize="none"
+          name="password"
+          Value="password"
+          placeholderTextColor="white"
+          onChangeText={(val) => this.onChangeText("password", val)}
+        />
+
+        <RadioGroup getChecked={this.getChecked}>
+          <Radio
+            defaultValue="op1"
+            value="teacher"
+            iconName={"lens"}
+            name="value"
+            label={"Teacher"}
+            value={"teacher"}
+            onChange={this.handleChange}
+          />
+          <Radio
+            onChange={this.handleChange}
+            defaultValue="op1"
+            value="student"
+            iconName={"lens"}
+            name="value"
+            label={"Student"}
+          />
+        </RadioGroup>
+        <Button
+          style={{
+            padding: 300,
+            margin: 100,
+            width: 70,
+            height: 50,
+            alignItems: "center",
+          }}
+          onPress={this.signUp}
+          title="SignUp"
+          color="#0000ff"
+        />
+        <Button
+          style={{
+            padding: 300,
+            margin: 100,
+            width: 70,
+            height: 50,
+            alignItems: "center",
+          }}
+          onPress={this.getChecked}
+          title="try"
+          color="#0000ff"
+        />
       </View>
     );
   }
